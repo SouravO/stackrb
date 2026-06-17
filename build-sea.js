@@ -3,7 +3,8 @@ import fs from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
 
-const DIST = 'dist';
+const ROOT = path.dirname(new URL(import.meta.url).pathname);
+const DIST = path.join(ROOT, 'dist');
 const BLOB = 'sea-prep.blob';
 const BUNDLE = 'sea-bundle.cjs';
 const OUTPUT = process.platform === 'win32' ? 'stackrb.exe' : 'stackrb';
@@ -13,7 +14,7 @@ async function main() {
 
   console.log('Bundling with esbuild...');
   await esbuild.build({
-    entryPoints: ['src/index.js'],
+    entryPoints: [path.join(ROOT, 'src/index.js')],
     bundle: true,
     platform: 'node',
     target: 'node22',
@@ -27,8 +28,8 @@ async function main() {
 
   console.log('Creating SEA config...');
   const seaConfig = {
-    main: path.resolve(DIST, BUNDLE),
-    output: path.resolve(DIST, BLOB),
+    main: path.join(DIST, BUNDLE),
+    output: path.join(DIST, BLOB),
     disableExperimentalSEAWarning: true,
   };
   fs.writeFileSync(path.join(DIST, 'sea-config.json'), JSON.stringify(seaConfig, null, 2));
@@ -64,7 +65,7 @@ async function main() {
     }
   }
 
-  const blobPath = path.resolve(DIST, BLOB);
+  const blobPath = path.join(DIST, BLOB);
   console.log('Injecting SEA blob...');
   execSync(
     `npx postject "${outputPath}" NODE_SEA_BLOB "${blobPath}" --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2`,
