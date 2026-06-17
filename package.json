@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "build": "node build-sea.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
@@ -13,5 +14,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "nodemailer": "^6.9.16"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
   }
 }
