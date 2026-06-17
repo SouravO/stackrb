@@ -56,6 +56,18 @@ router.post('/verify', async (req, res, next) => {
       return res.status(400).json({ error: error.message });
     }
 
+    const { error: insertError } = await supabaseAdmin.from('users').insert({
+      id: data.user.id,
+      email,
+      name: entry.name,
+      phone: entry.phone,
+      role: 'NORMAL_USER',
+    });
+
+    if (insertError) {
+      console.error('Failed to insert user profile:', insertError);
+    }
+
     const { data: sessionData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password: tempPassword,
@@ -96,6 +108,35 @@ router.post('/resend', async (req, res, next) => {
     await sendOtpEmail({ to: email, otp, name: existing.name });
 
     res.json({ message: 'OTP resent to email' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/me', async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing authorization header' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    if (error || !user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      return res.json({ user: { id: user.id, email: user.email, role: 'NORMAL_USER' } });
+    }
+
+    res.json({ user: profile });
   } catch (err) {
     next(err);
   }
