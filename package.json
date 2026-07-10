@@ -16,6 +16,13 @@
     "nodemailer": "^6.9.16"
   },
   "devDependencies": {
-    "esbuild": "^0.28.1"
+    "esbuild": "^0.28.1",
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "scripts": "dist/server.cjs",
+    "targets": ["node18-linux-x64"],
+    "outputPath": "dist",
+    "options": ["no-warnings"]
   }
 }
