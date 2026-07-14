@@ -123,7 +123,8 @@ router.get('/me', async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
     if (error || !user) {
-      return res.status(401).json({ error: 'Invalid token' });
+      return res.status(401).json({ error: error.message });
+      
     }
 
     const { data: profile, error: profileError } = await supabaseAdmin
